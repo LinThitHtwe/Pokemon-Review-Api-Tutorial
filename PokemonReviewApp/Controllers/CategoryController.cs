@@ -25,7 +25,7 @@ namespace PokemonReviewApp.Controllers
             var categories = _mapper.Map<List<CategoryDTO>>(_categoryRepository.GetCategories());
             if(!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(categories);
         }
@@ -44,7 +44,7 @@ namespace PokemonReviewApp.Controllers
             var category = _mapper.Map<CategoryDTO>(_categoryRepository.GetCategoryById(id));
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(category);
         }
@@ -62,9 +62,42 @@ namespace PokemonReviewApp.Controllers
             var pokemons = _mapper.Map<List<PokemonDTO>>(
                 _categoryRepository.GetPokemonsByCategory(id));
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             return Ok(pokemons);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateCategory([FromBody] CategoryDTO categoryDTO)        
+        {
+            if(categoryDTO == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var category = _categoryRepository.GetCategories()
+               .Where(category => category.Name.Trim().ToUpper() == categoryDTO.Name.TrimEnd().ToUpper()).FirstOrDefault();
+
+            if(category != null)
+            {
+                ModelState.AddModelError("", "Category Already Exists");
+                return StatusCode(422, ModelState);
+            }
+            if(!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+            var categoryMap = _mapper.Map<Category>(categoryDTO);
+
+            if (!_categoryRepository.CreateCategory(categoryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
         }
 
 

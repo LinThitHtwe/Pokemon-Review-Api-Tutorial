@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.Dtos;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -12,12 +13,17 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IPokemonRepository _pokemonRepository;
+        private readonly ICountryRepository _countryRepository;
         private readonly IMapper _mapper;
 
-        public OwnerController(IOwnerRepository ownerRepository, IPokemonRepository pokemonRepository, IMapper mapper)
+        public OwnerController(IOwnerRepository ownerRepository, 
+                                IPokemonRepository pokemonRepository, 
+                                ICountryRepository countryRepository,
+                                IMapper mapper)
         {
             _ownerRepository = ownerRepository;
             _pokemonRepository = pokemonRepository;
+            _countryRepository = countryRepository;
             _mapper = mapper;
         }
 
@@ -90,6 +96,32 @@ namespace PokemonReviewApp.Controllers
 
             return Ok(owner);
         }
+
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateOwner([FromQuery] int countryId,[FromBody] OwnerDTO ownerDTO)
+        {
+            if(ownerDTO == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var ownerMap = _mapper.Map<Owner>(ownerDTO);
+            ownerMap.Country = _countryRepository.GetCountryByID(countryId);
+            if (!_ownerRepository.CreateOwner(ownerMap))
+            {
+                ModelState.AddModelError("", "Something went Wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
+
+        
         
 
 

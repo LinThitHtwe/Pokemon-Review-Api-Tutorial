@@ -1,4 +1,5 @@
-﻿using PokemonReviewApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 
@@ -12,6 +13,30 @@ namespace PokemonReviewApp.Repository
         public PokemonRepository(DataContext context)
         {
             _context = context;
+        }
+
+        public bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        {
+            var owner = _context.Owners.Where(owner=>owner.Id==ownerId).FirstOrDefault();
+            var category = _context.Categories.Where(category=>category.Id==categoryId).FirstOrDefault();
+            var pokemonOwner = new PokemonOwner()
+            {
+                Owner = owner,
+                Pokemon = pokemon,
+            };
+
+            _context.Add(pokemonOwner);
+
+            var pokemonCategory = new PokemonCategory()
+            {
+                Category = category,
+                Pokemon = pokemon
+            };
+
+            _context.Add(pokemonCategory);
+
+            _context.Add(pokemon);
+            return Save();
         }
 
         public Pokemon GetPokemonById(int id)
@@ -41,13 +66,22 @@ namespace PokemonReviewApp.Repository
         public ICollection<Pokemon> GetPokemons()
         {
             return _context.Pokemons
-                .OrderBy(pokemon => pokemon.Id)
-                .ToList();
+                    //.Include(pokemon => pokemon.Reviews)
+                    //.Include(pokemon => pokemon.PokemonOwners)
+                    //.Include(pokemon => pokemon.PokemonCategories)
+                    .OrderBy(pokemon => pokemon.Id)
+                    .ToList();
         }
 
         public bool IsPokemonExists(int id)
         {
             return _context.Pokemons.Any(pokemon => pokemon.Id == id);
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0;
         }
     }
 }

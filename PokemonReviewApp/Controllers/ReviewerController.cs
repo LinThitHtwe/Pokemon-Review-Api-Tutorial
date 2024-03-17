@@ -27,7 +27,7 @@ namespace PokemonReviewApp.Controllers
             var reviewers = _mapper.Map<List<ReviewerDTO>>(_reviewerRepository.GetReviewers());
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(reviewers);
         }
@@ -45,7 +45,7 @@ namespace PokemonReviewApp.Controllers
             var review = _mapper.Map<ReviewerDTO>(_reviewerRepository.GetReviewerByID(id));
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(review);
         }
@@ -64,10 +64,32 @@ namespace PokemonReviewApp.Controllers
             var reviews = _reviewerRepository.GetReviewsByReviewerId(id);
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(reviews);
         }
 
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateReviewer([FromBody] ReviewDTO reviewDTO)
+        {
+            if (reviewDTO == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var reviewerMap = _mapper.Map<Reviewer>(reviewDTO);
+
+            if (!_reviewerRepository.CreateReviewer(reviewerMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
     }
 }

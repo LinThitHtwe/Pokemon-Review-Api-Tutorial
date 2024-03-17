@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.Dtos;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -12,12 +13,17 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IPokemonRepository _pokemonRepository;
+        private readonly IReviewerRepository _reviewerRepository;
         private readonly IMapper _mapper;
 
-        public ReviewController(IReviewRepository reviewRepository, IPokemonRepository pokemonRepository,IMapper mapper)
+        public ReviewController(IReviewRepository reviewRepository,
+                                IPokemonRepository pokemonRepository,
+                                IReviewerRepository reviewerRepository,
+                                IMapper mapper)
         {
             _reviewRepository = reviewRepository;
             _pokemonRepository = pokemonRepository;
+            _reviewerRepository = reviewerRepository;
             _mapper = mapper;
         }
 
@@ -29,7 +35,7 @@ namespace PokemonReviewApp.Controllers
             var reviews = _mapper.Map<List<ReviewDTO>>(_reviewRepository.GetReviews());
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             return Ok(reviews);
@@ -48,7 +54,7 @@ namespace PokemonReviewApp.Controllers
             var review = _mapper.Map<ReviewDTO>(_reviewRepository.GetReviewById(id));
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(review);
         }
@@ -66,10 +72,44 @@ namespace PokemonReviewApp.Controllers
             var reviews = _mapper.Map<List<ReviewDTO>>(_reviewRepository.GetReviewsByPokemonId(id));
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(reviews);
         }
 
-    }
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateReview([FromQuery] int reviewerId, [FromQuery]int pokemonId, [FromBody]ReviewDTO reviewDTO)
+        {
+            if (reviewDTO == null)
+                return BadRequest(ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_pokemonRepository.IsPokemonExists(pokemonId))
+            {
+                return NotFound("Pokemon Not Found");
+            }
+            if (!_reviewerRepository.IsReviewerExists(reviewerId))
+            {
+                return NotFound("Reviewer Not Found");
+            }
+
+            var reviewMap = _mapper.Map<Review>(reviewDTO);
+
+            reviewMap.Pokemon = _pokemonRepository.GetPokemonById(pokemonId);
+            reviewMap.Reviewer = _reviewerRepository.GetReviewerByID(reviewerId);
+
+            if (!_reviewRepository.CreateReview(reviewMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
+    }           
 }

@@ -28,7 +28,7 @@ namespace PokemonReviewApp.Controllers
             var countries = _mapper.Map<List<CountryDTO>>(_countryRepository.GetCountries());
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
             return Ok(countries);
 
@@ -44,6 +44,10 @@ namespace PokemonReviewApp.Controllers
                 return NotFound();
             }
             var country = _mapper.Map<CountryDTO>(_countryRepository.GetCountryByID(id));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             return Ok(country);
         }
 
@@ -62,7 +66,7 @@ namespace PokemonReviewApp.Controllers
                 _countryRepository.GetCountryByOwner(id));
 
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             return Ok(country);
         }
@@ -80,8 +84,43 @@ namespace PokemonReviewApp.Controllers
 
             var owners = _mapper.Map<List<Owner>>(_countryRepository.GetOwnersByCountryId(id));
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
             return Ok(owners);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(500)]
+        public IActionResult CreateCountry([FromBody]CountryDTO countryDto)
+        {
+            if(countryDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+            var country = _countryRepository
+                                .GetCountries()
+                                .Where(country => country.Name.Trim().ToUpper() == countryDto.Name.TrimEnd().ToUpper())
+                                .FirstOrDefault();
+
+            if(country != null)
+            {
+                ModelState.AddModelError("", "Country Already Exist");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var countryMap = _mapper.Map<Country>(countryDto);
+            if (!_countryRepository.CreateCountry(countryMap))
+            {
+                ModelState.AddModelError("", "Something went Wrong");
+                return StatusCode(500,ModelState);
+            }
+            return Ok("Successfully created");
         }
 
     }
