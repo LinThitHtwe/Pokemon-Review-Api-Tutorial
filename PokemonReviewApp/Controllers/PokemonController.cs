@@ -118,5 +118,70 @@ namespace PokemonReviewApp.Controllers
             return Ok("Successfully created");
         }
 
+        [HttpPut("{pokemonId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdatePokemon(int pokemonId,
+            [FromBody] PokemonDTO pokemonDto)
+        {
+            if (pokemonDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (pokemonId != pokemonDto.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_pokemonRepository.IsPokemonExists(pokemonId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var pokemonMap = _mapper.Map<Pokemon>(pokemonDto);
+            if(pokemonMap.Id != pokemonId)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_pokemonRepository.UpdatePokemon(pokemonMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully Updated");
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeletePokemon(int id)
+        {
+
+            if (!_pokemonRepository.IsPokemonExists(id))
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            if (!_pokemonRepository.DeletePokemon(id))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully Deleted");
+        }
+
     }
 }

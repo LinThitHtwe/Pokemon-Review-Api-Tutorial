@@ -39,6 +39,13 @@ namespace PokemonReviewApp.Repository
             return Save();
         }
 
+        public bool DeletePokemon(int id)
+        {
+            Pokemon pokemon = GetPokemonById(id);
+            _context.Remove(pokemon);
+            return Save();
+        }
+
         public Pokemon GetPokemonById(int id)
         {
             return _context.Pokemons
@@ -82,6 +89,12 @@ namespace PokemonReviewApp.Repository
         {
             var saved = _context.SaveChanges();
             return saved > 0;
+        }
+
+        public bool UpdatePokemon(Pokemon pokemon)
+        {
+            _context.Update(pokemon);
+            return Save();
         }
     }
 }
