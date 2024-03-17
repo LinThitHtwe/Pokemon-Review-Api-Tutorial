@@ -12,7 +12,7 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IPokemonRepository _pokemonRepository;
         private readonly IMapper _mapper;
-
+      
         public PokemonController(IPokemonRepository pokemonRepository,IMapper mapper)
         {
             _pokemonRepository = pokemonRepository;
@@ -21,9 +21,11 @@ namespace PokemonReviewApp.Controllers
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(ICollection<Pokemon>))]
+        [ProducesResponseType(400)]
         public IActionResult GetPokemons()
         {
-            var pokemons = _mapper.Map<List<PokemonDTO>>(_pokemonRepository.GetPokemons());
+             var pokemons = _mapper.Map<List<PokemonDTO>>(_pokemonRepository.GetPokemons());
+            
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             
@@ -32,6 +34,7 @@ namespace PokemonReviewApp.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(Pokemon))]
+        [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         public IActionResult GetPokemonById(int id)
         {
@@ -49,6 +52,7 @@ namespace PokemonReviewApp.Controllers
 
         [HttpGet("{id}/rating")]
         [ProducesResponseType(200, Type = typeof(decimal))]
+        [ProducesResponseType(404)]
         [ProducesResponseType(400)]
         public IActionResult GetPokemonRating(int id)
         {

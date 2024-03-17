@@ -16,12 +16,16 @@ namespace PokemonReviewApp.Repository
 
         public Pokemon GetPokemonById(int id)
         {
-            return _context.Pokemons.Where(pokemon => pokemon.Id == id).FirstOrDefault();
+            return _context.Pokemons
+                .Where(pokemon => pokemon.Id == id)
+                .FirstOrDefault();
         }
 
         public Pokemon GetPokemonByName(string name)
         {
-            return _context.Pokemons.Where(pokemon => pokemon.Name == name).FirstOrDefault();
+            return _context.Pokemons
+                .Where(pokemon => pokemon.Name == name)
+                .FirstOrDefault();
         }
 
         public decimal GetPokemonRating(int id)
@@ -36,8 +40,9 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Pokemon> GetPokemons()
         {
-
-            return _context.Pokemons.OrderBy(pokemon => pokemon.Id).ToList();
+            return _context.Pokemons
+                .OrderBy(pokemon => pokemon.Id)
+                .ToList();
         }
 
         public bool IsPokemonExists(int id)

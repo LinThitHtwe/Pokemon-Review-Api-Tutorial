@@ -12,7 +12,7 @@ namespace PokemonReviewApp
         }
         public void SeedDataContext()
         {
-            if (!dataContext.pokemonOwners.Any())
+            if (!dataContext.PokemonOwners.Any())
             {
                 var pokemonOwners = new List<PokemonOwner>()
                 {
@@ -110,7 +110,7 @@ namespace PokemonReviewApp
                         }
                     }
                 };
-                dataContext.pokemonOwners.AddRange(pokemonOwners);
+                dataContext.PokemonOwners.AddRange(pokemonOwners);
                 dataContext.SaveChanges();
             }
         }
