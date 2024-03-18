@@ -20,4 +20,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PokemonReviewApp.DbService\PokemonReviewApp.DbService.csproj" />
+    <ProjectReference Include="..\PokemonReviewApp.Dtos\PokemonReviewApp.Dtos.csproj" />
+    <ProjectReference Include="..\PokemonReviewApp.Repository\PokemonReviewApp.Repository.csproj" />
+  </ItemGroup>
+
 </Project>
