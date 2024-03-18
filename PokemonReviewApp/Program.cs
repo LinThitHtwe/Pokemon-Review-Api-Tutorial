@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp;
 using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
+using PokemonReviewApp.Models;
 using PokemonReviewApp.Repository;
 using System.Text.Json.Serialization;
 
@@ -27,7 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options=>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+}, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
 var app = builder.Build();
 
