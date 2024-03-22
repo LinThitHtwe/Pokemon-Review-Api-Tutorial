@@ -1,25 +1,20 @@
-﻿using AutoMapper;
-using PokemonReviewApp.Dtos;
-using PokemonReviewApp.Models;
+﻿namespace PokemonReviewApp.Helper;
 
-namespace PokemonReviewApp.Helper
+public class MappingProfiles : Profile
 {
-    public class MappingProfiles : Profile
+    public MappingProfiles()
     {
-        public MappingProfiles()
-        {
-            CreateMap<Pokemon, PokemonDTO>();
-            CreateMap<Category, CategoryDTO>();
-            CreateMap<CategoryDTO, Category>();
-            CreateMap<CountryDTO, Country>();
-            CreateMap<OwnerDTO, Owner>();
-            CreateMap<PokemonDTO, Pokemon>();
-            CreateMap<ReviewDTO, Review>();
-            CreateMap<ReviewerDTO, Reviewer>();
-            CreateMap<Country, CountryDTO>();
-            CreateMap<Owner, OwnerDTO>();
-            CreateMap<Review, ReviewDTO>();
-            CreateMap<Reviewer, ReviewerDTO>();
-        }       
-    }
+        CreateMap<Pokemon, PokemonDTO>();
+        CreateMap<Category, CategoryDTO>();
+        CreateMap<CategoryDTO, Category>();
+        CreateMap<CountryDTO, Country>();
+        CreateMap<OwnerDTO, Owner>();
+        CreateMap<PokemonDTO, Pokemon>();
+        CreateMap<ReviewDTO, Review>();
+        CreateMap<ReviewerDTO, Reviewer>();
+        CreateMap<Country, CountryDTO>();
+        CreateMap<Owner, OwnerDTO>();
+        CreateMap<Review, ReviewDTO>();
+        CreateMap<Reviewer, ReviewerDTO>();
+    }       
 }

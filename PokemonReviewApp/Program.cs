@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp;
 using PokemonReviewApp.Data;
-using PokemonReviewApp.Interfaces;
-using PokemonReviewApp.Repository;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,23 +25,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options=>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+}, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
 var app = builder.Build();
 
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
-    SeedData(app);
-
-void SeedData(IHost app)
-{
-    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
-
-    using (var scope = scopedFactory.CreateScope())
-    {
-        var service = scope.ServiceProvider.GetService<Seed>();
-        service.SeedDataContext();
-    }
-}
+    Seed.Init(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
